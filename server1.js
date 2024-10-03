@@ -13,10 +13,10 @@ const start = async () => {
     await fastify.register(fastifyExpress);
 
     // Use Express-like syntax within Fastify
-    fastify.express.get('/', params, proxy);
+    fastify.get('/', params, proxy);
 
     // Handle favicon.ico requests
-    fastify.express.get('/favicon.ico', (req, res) => res.status(204).end());
+    fastify.get('/favicon.ico', (req, res) => res.status(204).send());
 
     await fastify.listen({ port: PORT, host: '0.0.0.0' });
     fastify.log.info(`Server listening on ${PORT}`);
