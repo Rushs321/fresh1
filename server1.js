@@ -1,29 +1,37 @@
 #!/usr/bin/env node
 'use strict';
-const fastify = require('fastify')({ logger: true });
-const fastifyExpress = require('@fastify/express');
+const fastify = require('fastify')();
+const express = require('@fastify/express');
 const params = require('./src/params');
 const proxy = require('./src/proxy');
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
-const start = async () => {
-  try {
-    // Register fastify-express plugin
-    await fastify.register(fastifyExpress);
+async function start() {
+  // Register the express plugin
+  await fastify.register(express);
 
-    // Use Express-like syntax within Fastify
-    fastify.get('/', params, proxy);
+  // Use Express middleware for handling parameters and proxy logic
+  fastify.use('/', params, (req, res, next) => {
+    if (req.path === '/') {
+      return proxy(req, res);
+    }
+    next();
+  });
 
-    // Handle favicon.ico requests
-    fastify.get('/favicon.ico', (req, res) => res.status(204).send());
+  // Handle favicon.ico separately
+  fastify.use('/favicon.ico', (req, res) => {
+    res.status(204).end();
+  });
 
-    await fastify.listen({ port: PORT, host: '0.0.0.0' });
-    fastify.log.info(`Server listening on ${PORT}`);
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
+  // Start the server
+  fastify.listen({ host: '0.0.0.0', port: PORT }, function (err, address) {
+    if (err) {
+      fastify.log.error(err);
+      process.exit(1);
+    }
+    console.log(`Server listening on ${address}`);
+  });
+}
 
 start();
