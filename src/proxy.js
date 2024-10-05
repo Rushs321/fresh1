@@ -8,10 +8,18 @@ const undici = require("undici");
 const pick = require("lodash").pick;
 const shouldCompress = require("./shouldCompress");
 const redirect = require("./redirect");
-const compress = require("./compress");
+const compress = require("./compress1");
 const copyHeaders = require("./copyHeaders");
 
 async function proxy(req, res) {
+
+  let url = req.query.url;
+  if (!url) return res.send('bandwidth-hero-proxy');
+
+  req.params.url = decodeURIComponent(url);
+  req.params.webp = !req.query.jpeg
+  req.params.grayscale = req.query.bw != 0
+  req.params.quality = parseInt(req.query.l, 10) || 40
   /*
    * Avoid loopback that could causing server hang.
    */
