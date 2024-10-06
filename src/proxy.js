@@ -34,7 +34,7 @@ async function proxy(req, res) {
       headers: {
         ...pick(req.headers, ["cookie", "dnt", "referer", "range"]),
         "user-agent": "Bandwidth-Hero Compressor",
-        "x-forwarded-for": "127.0.0.1",  // Mask the real IP address
+        "x-forwarded-for": "192.168.1.1",  // Mask the real IP address
         via: "1.1 bandwidth-hero",
       },
       maxRedirections: 4
