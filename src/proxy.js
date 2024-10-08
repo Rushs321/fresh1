@@ -21,11 +21,11 @@ async function proxy(req, res) {
   req.params.grayscale = req.query.bw != 0
   req.params.quality = parseInt(req.query.l, 10) || 40
   /*
-   * Avoid loopback that could cause server hang.
+   * Avoid loopback that could causing server hang.
    */
   if (
     req.headers["via"] == "1.1 bandwidth-hero" &&
-    ["127.0.0.1", "::1"].includes(req.ip)  // Only check req.ip and not x-forwarded-for
+    ["127.0.0.1", "::1"].includes(req.ip)
   )
     return redirect(req, res);
 
@@ -34,7 +34,8 @@ async function proxy(req, res) {
       headers: {
         ...pick(req.headers, ["cookie", "dnt", "referer", "range"]),
         "user-agent": "Bandwidth-Hero Compressor",
-        "x-forwarded-for": "192.168.1.1",  // Mask the real IP address
+        // Hide the real IP address by not forwarding the x-forwarded-for header
+        // "x-forwarded-for": req.headers["x-forwarded-for"] || req.ip,
         via: "1.1 bandwidth-hero",
       },
       maxRedirections: 4
@@ -82,7 +83,7 @@ function _onRequestResponse(origin, req, res) {
   } else {
     /*
      * Downloading then uploading the buffer to the client is not a good idea though,
-     * It would better if you pipe the incoming buffer to the client directly.
+     * It would better if you pipe the incomming buffer to client directly.
      */
 
     res.setHeader("x-proxy-bypass", 1);
